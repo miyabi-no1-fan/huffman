@@ -21,11 +21,11 @@ struct Symbol {
     uint8_t symbol;
 };
 
-// For encoder
+// For encoder, size = 1024
 using Dictionary = std::array<CodeWord, 256>;
 
-// For decoder
-using LookupTable = std::unique_ptr<std::array<Symbol, 65536>>;
+// For decoder, size = 131072
+using LookupTable = std::array<Symbol, 65536>;
 
 /* For encoder.
 Generate a dictionary,
@@ -39,7 +39,7 @@ Generate a lookup table from dictionary.
 where,
 lookup_table[code] is the dedicated symbol for that code with its code_length.
 assume 0 <= code < 65536. */
-LookupTable make_lookup_table(const Dictionary& dictionary);
+std::unique_ptr<LookupTable> make_lookup_table(const Dictionary& dictionary);
 
 // asign valid Huffman code for a dictionary that has length and symbol only
 void canonical_huffman_assignment(Dictionary& dictionary);
@@ -62,13 +62,13 @@ static std::ostream& operator<<(std::ostream& os, const Dictionary& dict) {
 }
 
 static std::ostream& operator<<(std::ostream& os, const LookupTable& table) {
-    for (uint32_t i = 0; i < (*table).size(); i++) {
-        if ((*table)[i].length > 0) {
+    for (uint32_t i = 0; i < table.size(); i++) {
+        if (table[i].length > 0) {
             os << CodeWord {
-                .code = static_cast<uint16_t>(i),
-                .length = (*table)[i].length,
-                .symbol = (*table)[i].symbol,
-            };
+                .code = static_cast<uint16_t>(i >> (16 - table[i].length)),
+                .length = table[i].length,
+                .symbol = table[i].symbol,
+            } << "\n";
         }
     }
     return os;
