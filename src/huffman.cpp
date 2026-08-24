@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <queue>
 #include <stdexcept>
 #include <vector>
@@ -111,15 +112,15 @@ void Huffman::canonical_huffman_assignment(Dictionary& dictionary) {
     }
 }
 
-LookupTable Huffman::make_lookup_table(const Dictionary& dictionary) {
-    LookupTable table;
+std::unique_ptr<LookupTable> Huffman::make_lookup_table(const Dictionary& dictionary) {
+    auto table = std::make_unique<LookupTable>();
 
-    for (int i = 0; i < dictionary.size(); i++) {
+    for (unsigned i = 0; i < dictionary.size(); i++) {
         if (dictionary[i].length > 0) {
             uint8_t len = dictionary[i].length;
             uint16_t code = dictionary[i].code << (16 - len);
 
-            for (uint32_t i = 0; i < (1 << (16 - len)); i++) {
+            for (uint32_t _ = 0; _ < (UINT32_C(1) << (16 - len)); _++) {
                 (*table)[code] = {
                     .length = len,
                     .symbol = static_cast<uint8_t>(i),

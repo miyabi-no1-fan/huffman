@@ -10,7 +10,7 @@ int main() {
     std::cout << dict;
     auto table = Huffman::make_lookup_table(dict);
     
-    for (int i = 0; i < dict.size(); i++) {
+    for (unsigned i = 0; i < dict.size(); i++) {
         if (dict[i].length > 0) {
             auto code = dict[i].code;
             auto len = dict[i].length;
